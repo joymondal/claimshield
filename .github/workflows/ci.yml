@@ -1,0 +1,21 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test-build-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test            # 40 unit, graph, live-path (fake transport) and MCP tests
+      - run: npm run eval        # golden set + red-team gate on the offline engine; fails on any regression
+      - run: npm run build
+      - run: npm audit --audit-level=high
