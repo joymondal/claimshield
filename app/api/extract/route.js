@@ -1,5 +1,5 @@
 // POST /api/extract - turns an uploaded PDF or text file into plain text. Nothing is stored.
-import { json, allow } from "../../../lib/api-helpers.js";
+import { json, allow, requireUser } from "../../../lib/api-helpers.js";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -8,6 +8,8 @@ export const dynamic = "force-dynamic";
 const MAX_BYTES = 4 * 1024 * 1024;
 
 export async function POST(req) {
+  const denied = await requireUser(req); // checked here as well as in proxy.js
+  if (denied) return denied;
   if (!allow(req, "extract", 80)) return json({ error: "Too many uploads. Try again later." }, 429);
   let file;
   try { file = (await req.formData()).get("file"); } catch { return json({ error: "Upload a file." }, 400); }

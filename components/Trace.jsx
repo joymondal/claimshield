@@ -27,10 +27,14 @@ function Row({ t, i }) {
 
 export function TraceLive({ events, busy }) {
   const rows = events.filter((e) => e.type === "node");
+  const last = events[events.length - 1];
+  const waiting = busy && last?.type === "wait" ? last : null;
   return (
     <ol className="trace" aria-live="polite">
       {rows.map((e, i) => <Row key={i} t={e.trace} i={i} />)}
-      {busy && <li className="trace-row working"><span className="trace-n">{rows.length + 1}</span><div className="trace-body"><p className="trace-title">Working</p></div></li>}
+      {busy && <li className="trace-row working"><span className="trace-n">{rows.length + 1}</span><div className="trace-body"><p className="trace-title">Working</p>
+        {waiting && <p className="trace-summary">{waiting.provider} asked us to slow down. Waiting about {waiting.seconds} seconds, then continuing. Free AI keys allow only a few thousand words a minute.</p>}
+      </div></li>}
     </ol>
   );
 }

@@ -32,7 +32,9 @@ Second stage: if the insurer rejects the grievance or stays silent, the app chec
 ## Two engines
 
 - **Offline demo engine (default).** No API key, no cost, no data leaves the server. Extraction, grading and drafting are deterministic. It always works, so the deployed link cannot run out of quota during a demo. Its first draft is deliberately short so that the Critic's review loop is visible.
-- **Live AI.** Set one key (`GROQ_API_KEY`, `GEMINI_API_KEY` or `ANTHROPIC_API_KEY`). A cheap model handles extraction, grading and planning; a stronger model handles strategy, drafting and critique. The rule checks stay deterministic in both modes, and the model can only cite rule ids that exist in `lib/rules/rules.js`. If a model call fails or is rate-limited, that agent falls back to the offline engine and the trace says so.
+- **Live AI.** Set one key (`GROQ_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`). A cheap model handles extraction, grading and planning; a stronger model handles strategy, drafting and critique. The rule checks stay deterministic in both modes, and the model can only cite rule ids that exist in `lib/rules/rules.js`. If a model call fails or is rate-limited, that agent falls back to the offline engine and the trace says so.
+- **Rate limits and time budget.** On Groq's free tier (8,000 tokens a minute per model) a run may pause for up to a minute; the progress list says so. Model calls stop after `RUN_BUDGET_MS` (default 270 s, under the 300 s route limit) and any remaining step uses the built-in engine, so a run always finishes. Set `STATE_SECRET` in every deployment.
+- **Sign-in (optional).** Set `APP_USERNAME` and `APP_PASSWORD` to require a username and password for every page and API route; `STATE_SECRET` (16 characters or more) must also be set, because it signs the session cookie. Sessions last 8 hours. Leave both unset to keep the app open.
 
 ## Project layout
 

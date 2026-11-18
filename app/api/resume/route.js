@@ -2,13 +2,15 @@
 import { resumeWithDecision, publicView } from "../../../lib/agents/graph.js";
 import { openState } from "../../../lib/state-token.js";
 import { LIMITS } from "../../../lib/guard/guard.js";
-import { json, tokenFor, flushTraces, allow } from "../../../lib/api-helpers.js";
+import { json, tokenFor, flushTraces, allow, requireUser } from "../../../lib/api-helpers.js";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 export async function POST(req) {
+  const denied = await requireUser(req); // checked here as well as in proxy.js
+  if (denied) return denied;
   let body;
   try { body = await req.json(); } catch { return json({ error: "Send a JSON body." }, 400); }
   if (!allow(req, "resume", 80)) return json({ error: "Too many requests. Try again later." }, 429);

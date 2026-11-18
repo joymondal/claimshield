@@ -2,13 +2,15 @@
 import { runEscalation } from "../../../lib/agents/graph.js";
 import { openState } from "../../../lib/state-token.js";
 import { parseDate } from "../../../lib/agents/util.js";
-import { ndjsonStream, json, allow } from "../../../lib/api-helpers.js";
+import { ndjsonStream, json, allow, requireUser } from "../../../lib/api-helpers.js";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300; // live runs may wait out free-tier rate limits (Vercel Hobby with Fluid compute allows 300 s)
 export const dynamic = "force-dynamic";
 
 export async function POST(req) {
+  const denied = await requireUser(req); // checked here as well as in proxy.js
+  if (denied) return denied;
   let body;
   try { body = await req.json(); } catch { return json({ error: "Send a JSON body." }, 400); }
   if (!allow(req, "escalate", 40)) return json({ error: "Too many requests. Try again later." }, 429);

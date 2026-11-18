@@ -87,6 +87,12 @@ export default function ClaimShieldApp() {
           </div>
         </div>
         <div className="mast-right">
+          {status?.auth && (
+            <div className="signout">
+              {status.auth.user && <span>Signed in as {status.auth.user}</span>}
+              <form method="post" action="/api/logout"><button type="submit" className="link">Sign out</button></form>
+            </div>
+          )}
           {engine && <span className={`engine ${engine.provider === "offline" ? "is-offline" : "is-live"}`} title={engine.models ? `Models: ${engine.models.cheap} / ${engine.models.strong}` : "No AI key is set on the server"}>{engine.label}</span>}
         </div>
       </header>
